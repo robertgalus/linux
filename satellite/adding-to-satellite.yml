@@ -5,10 +5,10 @@
   tasks:
     - name: Cleaning all configuration
       shell:
-	    subscription-manager remove --all
+	subscription-manager remove --all
         subscription-manager unregister
         subscription-manager clean
-	    yum clean all
+	yum clean all
         mkdir /root/backup_repos
         mv -f /etc/yum.repos.d/*.repo /root/backup_repos
         rm -Rf /var/cache/yum/*
@@ -20,15 +20,15 @@
 
     - name: Install katello from Satellite on azure
       ansible.builtin.yum:
-	    name: http://{{ server-link }}/pub/katello-ca-consumer-latest.noarch.rpm
+	    name: http://"{{ satellite-link }}"/pub/katello-ca-consumer-latest.noarch.rpm
 		state: present 
 
     - name: Register host to satellite
       community.general.redhat_subscription:
         state: present
-	    pool_ids: {{ pool_id_satellite }}
+	    pool_ids: "{{ pool_id_satellite }}"
         activationkey: "{{ activation_key_sat }}"
-	    org_id : Korian
+	    org_id : "{{ org_name_in_satellite }}"
 	  
     - name: Install katello
       ansible.builtin.yum:
