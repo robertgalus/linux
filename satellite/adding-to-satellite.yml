@@ -1,0 +1,46 @@
+---
+  gather_facts: false
+  become_user: root
+  
+  tasks:
+    - name: Cleaning all configuration
+      shell:
+	    subscription-manager remove --all
+        subscription-manager unregister
+        subscription-manager clean
+	    yum clean all
+        mkdir /root/backup_repos
+        mv -f /etc/yum.repos.d/*.repo /root/backup_repos
+        rm -Rf /var/cache/yum/*
+
+    - name: Remove the old Katello package
+      ansible.builtin.yum:
+        name: katello-ca-consumer-latest
+        state: absent
+
+    - name: Install katello from Satellite on azure
+      ansible.builtin.yum:
+	    name: http://{{ server-link }}/pub/katello-ca-consumer-latest.noarch.rpm
+		state: present 
+
+    - name: Register host to satellite
+      community.general.redhat_subscription:
+        state: present
+	    pool_ids: {{ pool_id_satellite }}
+        activationkey: "{{ activation_key_sat }}"
+	    org_id : Korian
+	  
+    - name: Install katello
+      ansible.builtin.yum:
+	    name: katello-agent katello-host-tools
+		state: present
+	
+	- name: Rhsmcert start
+      ansible.builtin.service:
+	    name: rhsmcertd
+		state: started
+		
+	- name: Repos list
+      shell: subscription-manager repos --list  
+	   
+...
