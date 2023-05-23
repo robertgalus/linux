@@ -1,0 +1,9 @@
+---
+- name: check reachable hosts
+  hosts: all
+  gather_facts: no
+  tasks:
+    - command: ping -c1 {{ inventory_hostname }}
+      delegate_to: localhost
+      register: ping_result
+      ignore_errors: yes

@@ -1,0 +1,46 @@
+me: Health Check 
+  hosts: satellite-serv, capsule-serv
+  gather_facts: false
+  become: yes
+  become_user: root
+  tasks:
+  - name: Satellite Health Check
+    shell: 
+      command: satellite-maintain health check
+    register: command_output
+
+  - name: Debug
+    debug:
+      var: command_output.stdout_lines
+
+  - name: Script check for sattellite-serv
+    shell:
+      command: satellite-maintain health check | awk '{if ($1 ~/^Check/){print $NF}}' | awk '{if($1 !~/^[OK]/){v += 0};if($1 ~/^[OK]/){v += 1}} END { if(v==4) exit 255;if(v<=3) exit 0 }'
+    register: exitcodedsat
+    when hostname == satellite-serv
+
+  - name: Script check for capsule-serv
+    shell:
+      command: satellite-maintain health check | awk '{if ($1 ~/^Check/){print $NF}}' | awk '{if($1 !~/^[OK]/){v += 0};if($1 ~/^[OK]/){v += 1}} END { if(v==6) exit 255;if(v<=5) exit 0 }'
+    register: exitcodesha010
+    when hostname == capsule-serv
+
+  - name: IT IS NO OK on sattelite-serv
+      community.general.mail:
+        host: 
+        port: 
+        username: 
+        subject: Satellite Health check not OK - {{ ansible_hostname }}
+        body : Exit code from  {{ ansible_hostname }} is {{ exitcode }}
+      failed_when: exitcodedsat == 255
+
+  - name: IT IS NO OK on capusle-serv
+      community.general.mail:
+        host: 
+        port: 
+        username: 
+        subject: Satellite Health check not OK - {{ ansible_hostname }}
+        body : Exit code from  {{ ansible_hostname }} is {{ exitcode }}
+      failed_when: exitcodedssha010 == 255
+...
+

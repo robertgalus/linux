@@ -1,0 +1,25 @@
+---
+- name: WhoamI Check 
+  hosts: all
+  gather_facts: true
+  become: yes
+  become_user: root
+  tasks:
+
+    - name: Get whoami information for RedHat
+      shell:
+        cmd: whoami
+      register: whoami_lin
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - debug:
+        var: whoami_lin
+
+    - name: Get whoami information for Winsows
+      win_whoami:
+      register: whoami_win
+      when: ansible_facts['os_family'] == "Windows"
+      
+    - debug:
+        var: whoami_win
+...
