@@ -20,25 +20,25 @@
 
     - name: Install katello from Satellite on azure
       ansible.builtin.yum:
-	    name: http://"{{ satellite-link }}"/pub/katello-ca-consumer-latest.noarch.rpm
-		state: present 
+	name: http://"{{ satellite-link }}"/pub/katello-ca-consumer-latest.noarch.rpm
+	state: present 
 
     - name: Register host to satellite
       community.general.redhat_subscription:
         state: present
-	    pool_ids: "{{ pool_id_satellite }}"
+	pool_ids: "{{ pool_id_satellite }}"
         activationkey: "{{ activation_key_sat }}"
-	    org_id : "{{ org_name_in_satellite }}"
+	org_id : "{{ org_name_in_satellite }}"
 	  
     - name: Install katello
       ansible.builtin.yum:
-	    name: katello-agent katello-host-tools
-		state: present
+	name: katello-agent katello-host-tools 
+	state: present
 	
     - name: Rhsmcert start
       ansible.builtin.service:
-	    name: rhsmcertd
-		state: started
+	name: rhsmcertd
+	state: started
 		
     - name: Repos list
       shell: subscription-manager repos --list  
