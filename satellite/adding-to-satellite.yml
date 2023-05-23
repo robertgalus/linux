@@ -35,12 +35,12 @@
 	    name: katello-agent katello-host-tools
 		state: present
 	
-	- name: Rhsmcert start
+    - name: Rhsmcert start
       ansible.builtin.service:
 	    name: rhsmcertd
 		state: started
 		
-	- name: Repos list
+    - name: Repos list
       shell: subscription-manager repos --list  
 	   
 ...
